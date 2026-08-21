@@ -1,0 +1,123 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  background: #ffffff;
+  color: #12255a;
+}
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+/* =========================================
+   CORRECCIÓN MOBILE - TARJETAS MARKETING
+   ========================================= */
+
+@media (max-width: 639px) {
+  /* Evita que los grids puedan crecer más que el viewport */
+  .grid {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /* Las tarjetas deben poder encogerse */
+  .grid > article {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Los contenidos flex internos también deben poder encogerse */
+  .grid > article .flex {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /* Evita que bloques de texto obliguen a crecer a la tarjeta */
+  .grid > article h1,
+  .grid > article h2,
+  .grid > article h3,
+  .grid > article h4,
+  .grid > article p,
+  .grid > article div {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /* Imágenes siempre contenidas */
+  .grid > article img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* =========================================================
+   MARKETING EVOLUTION - CORRECCIÓN RESPONSIVE MOBILE
+   ========================================================= */
+
+@media (max-width: 767px) {
+  #why article {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    overflow: hidden !important;
+  }
+
+  #why article > div:first-child {
+    min-width: 0 !important;
+    gap: 16px !important;
+  }
+
+  #why article > div:first-child > div:first-child {
+    width: 96px !important;
+    height: 96px !important;
+    min-width: 96px !important;
+    flex-shrink: 0 !important;
+  }
+
+  #why article > div:first-child > div:first-child img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+  }
+
+  #why article > div:first-child > div:nth-child(2) {
+    width: 1px !important;
+    min-width: 1px !important;
+    flex-shrink: 0 !important;
+  }
+
+  #why article h3 {
+    min-width: 0 !important;
+    font-size: 24px !important;
+    line-height: 1.2 !important;
+    overflow-wrap: break-word !important;
+  }
+
+  #why article p {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow-wrap: break-word !important;
+  }
+}
+/* =========================================
+   CIERRE DE PÁGINA - EVITAR ESPACIO BLANCO
+   ========================================= */
+
+html {
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  background: #0b2368;
+}
