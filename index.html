@@ -26,7 +26,16 @@
         background-image: url("assets/images/eanbs-coming-soon.webp");
         background-repeat: no-repeat;
         background-position: center center;
-        background-size: cover;
+        background-size: contain;
+        background-color: #ffffff;
+      }
+
+      @media (max-width: 768px) {
+        .coming-soon {
+          background-image: url("assets/images/eanbs-coming-soon-mobile.webp");
+          background-position: center center;
+          background-size: cover;
+        }
       }
     </style>
   </head>
