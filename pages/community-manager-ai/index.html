@@ -101,7 +101,7 @@
     href="https://forms.gle/HuETnsAe2HxYP6YR8"
     target="_blank"
     rel="noopener noreferrer"
-    class="btn-primary hidden lg:inline-flex"
+    class="btn-primary hidden lg:inline-flex" data-ean-inscription="true"
 >
     Inscríbete ahora
 </a>
@@ -184,7 +184,7 @@ Metodología
 <a href="https://forms.gle/HuETnsAe2HxYP6YR8"
    target="_blank"
    rel="noopener noreferrer"
-   class="btn-primary">
+   class="btn-primary" data-ean-inscription="true">
     Inscríbete ahora
 </a>
 
@@ -2777,6 +2777,21 @@ document.addEventListener("DOMContentLoaded", () => {
       );
       saveConsent(accept ? "accepted" : "rejected");
     });
+
+document.querySelectorAll('[data-ean-inscription="true"]')
+  .forEach(function (button) {
+    button.addEventListener("click", function () {
+      if (
+        localStorage.getItem(STORAGE_KEY) === "accepted" &&
+        typeof fbq === "function"
+      ) {
+        fbq("trackCustom", "InscriptionClick", {
+          course: "Community Manager AI",
+          destination: "Google Forms"
+        });
+      }
+    });
+  });
 
   const consent = localStorage.getItem(STORAGE_KEY);
 
