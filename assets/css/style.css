@@ -111,25 +111,25 @@ COMPANIES
 
   align-items: center;
 
-  gap: 90px;
+  gap: 35px;
 
   width: max-content;
 
   animation: companies 40s linear infinite;
 
-  padding: 40px 0;
+  padding: 15px 0;
 }
 
 .company-slider img {
-  height: 32px;
-  width: auto;
+  height: 65px;
+  width: 180px;
   object-fit: contain;
+  flex-shrink: 0;
 
-  opacity: 0.55;
+  opacity: 1;
+  filter: none;
 
   transition: 0.35s;
-
-  filter: grayscale(100%);
 }
 
 .company-slider img:hover {
@@ -442,4 +442,19 @@ PAISES
 }
 .hero-image {
   margin-top: -40px;
+}
+/* Ocultar barra horizontal del carrusel de testimonios */
+#testimonios-carrusel {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+#testimonios-carrusel::-webkit-scrollbar {
+  display: none;
+}
+/* Evitar desplazamiento horizontal de toda la página */
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
 }

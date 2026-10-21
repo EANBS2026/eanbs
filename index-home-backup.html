@@ -38,6 +38,119 @@
     <link rel="stylesheet" href="assets/css/style.css" />
   </head>
 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const carrusel = document.getElementById("testimonios-carrusel");
+  const anterior = document.getElementById("testimonios-prev");
+  const siguiente = document.getElementById("testimonios-next");
+  const indicadores = document.getElementById("testimonios-indicadores");
+
+  if (!carrusel || !anterior || !siguiente) return;
+
+  const tarjetas = Array.from(
+    carrusel.querySelectorAll(".testimonial-card")
+  );
+
+  if (!tarjetas.length) return;
+
+  let intervalo;
+  let posicion = 0;
+
+  function visibles() {
+    if (window.innerWidth >= 1024) return 3;
+    if (window.innerWidth >= 768) return 2;
+    return 1;
+  }
+
+  function maximo() {
+    return Math.max(0, tarjetas.length - visibles());
+  }
+
+  function mover(indice) {
+    posicion = Math.max(0, Math.min(indice, maximo()));
+
+    carrusel.scrollTo({
+      left: tarjetas[posicion].offsetLeft - tarjetas[0].offsetLeft,
+      behavior: "smooth"
+    });
+
+    actualizarIndicadores();
+  }
+
+  function actualizarIndicadores() {
+    indicadores.innerHTML = "";
+
+    for (let i = 0; i <= maximo(); i++) {
+      const punto = document.createElement("button");
+      punto.type = "button";
+      punto.setAttribute("aria-label", "Ver posición " + (i + 1));
+      punto.className =
+        "w-2.5 h-2.5 rounded-full " +
+        (i === posicion ? "bg-blue-900" : "bg-gray-300");
+
+      punto.addEventListener("click", () => {
+        mover(i);
+        reiniciar();
+      });
+
+      indicadores.appendChild(punto);
+    }
+  }
+
+  function avanzar() {
+    mover(posicion >= maximo() ? 0 : posicion + 1);
+  }
+
+  function reiniciar() {
+    clearInterval(intervalo);
+    intervalo = setInterval(avanzar, 5000);
+  }
+
+  anterior.addEventListener("click", () => {
+    mover(posicion <= 0 ? maximo() : posicion - 1);
+    reiniciar();
+  });
+
+  siguiente.addEventListener("click", () => {
+    avanzar();
+    reiniciar();
+  });
+
+  carrusel.addEventListener("mouseenter", () => clearInterval(intervalo));
+  carrusel.addEventListener("mouseleave", reiniciar);
+
+  carrusel.addEventListener("focusin", () => clearInterval(intervalo));
+  carrusel.addEventListener("focusout", reiniciar);
+
+  carrusel.addEventListener("scroll", () => {
+    let masCercana = 0;
+    let distancia = Infinity;
+
+    tarjetas.forEach((tarjeta, i) => {
+      const diferencia = Math.abs(
+        carrusel.scrollLeft -
+        (tarjeta.offsetLeft - tarjetas[0].offsetLeft)
+      );
+
+      if (diferencia < distancia) {
+        distancia = diferencia;
+        masCercana = i;
+      }
+    });
+
+    posicion = Math.min(masCercana, maximo());
+    actualizarIndicadores();
+  }, { passive: true });
+
+  window.addEventListener("resize", () => {
+    mover(Math.min(posicion, maximo()));
+  });
+
+  mover(0);
+  reiniciar();
+});
+</script>
+
   <body class="bg-white text-gray-800">
     <header
       class="sticky top-0 bg-white/90 backdrop-blur border-b border-gray-100 z-50"
@@ -53,16 +166,21 @@
           </a>
 
           <ul class="hidden lg:flex items-center gap-10 font-medium">
-            <li><a href="#">Programas</a></li>
+            <li><a href="#programas">Programas</a></li>
 
-            <li><a href="#">Faculty</a></li>
+            <li style="display: none;"><a href="#">Faculty</a></li>
 
-            <li><a href="#">Empresas</a></li>
+            <li><a href="#empresas">Empresas</a></li>
 
-            <li><a href="#">Sobre EAN</a></li>
+            <li><a href="#sobre-ean">Sobre EAN</a></li>
           </ul>
 
-          <a href="#" class="btn-primary hidden lg:inline-flex"> Aplicar </a>
+          <a href="https://forms.gle/RwQQ7VGGAYz6cwbk6"
+   target="_blank"
+   rel="noopener noreferrer"
+   class="btn-primary hidden lg:inline-flex">
+  Aplicar
+</a>
         </nav>
       </div>
     </header>
@@ -76,7 +194,7 @@
             </p>
 
             <h1 class="text-5xl lg:text-6xl font-extrabold leading-tight text-primary mb-8">
-              El futuro pertenece a quienes nunca dejan de aprender.
+              El futuro pertenece a quienes nunca dejan de aprender
             </h1>
 
             <p class="subtitle mb-10">
@@ -84,10 +202,10 @@
             </p>
 
             <div class="flex flex-wrap gap-4">
-              <a href="#" class="btn-primary"> Explorar Programas </a>
+              <a href="#programas" class="btn-primary"> Explorar Programas </a>
 
               <a
-                href="#"
+                href="#sobre-ean"
                 class="border border-primary rounded-full px-8 py-4 font-semibold hover:bg-primary hover:text-white transition"
               >
                 ¿Por qué EAN?
@@ -107,9 +225,9 @@
               </div>
 
               <div>
-                <h3 class="text-4xl font-extrabold text-primary">32 horas</h3>
+                <h3 class="text-4xl font-extrabold text-primary">100%</h3>
 
-                <p class="text-gray-500 mt-2">Live Online</p>
+                <p class="text-gray-500 mt-2">Online en vivo</p>
               </div>
             </div>
             </div>
@@ -126,7 +244,7 @@
           </div>
 
     </section>
-<section class="py-24 bg-gray-50">
+<section id="programas" class="py-24 bg-gray-50">
 
     <div class="container-ean">
 
@@ -148,109 +266,202 @@
 
         </div>
 
-        <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-8">
-            <div class="program-card bg-white rounded-3xl shadow-lg overflow-hidden hover:-translate-y-2 transition">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
 
-    <img src="assets/images/programs/marketing.jpg"
-         class="w-full h-56 object-cover">
+    <div class="program-card bg-white rounded-3xl shadow-lg overflow-hidden hover:-translate-y-2 transition">
 
-    <div class="program-card-body p-8">
+  <img
+  src="assets/images/programs/community-manager-program.webp"
+  alt="Community Manager AI"
+  class="w-full h-56 object-cover"
+>
 
-        <span class="text-accent font-semibold">
-            Escuela de Marketing
-        </span>
+  <div class="program-card-body p-8">
 
-        <h3 class="text-2xl font-bold text-primary mt-2 mb-4">
-            Marketing Estratégico
-        </h3>
+    <span class="text-accent font-semibold">
+      Escuela de Marketing
+    </span>
 
-        <p class="text-gray-600 mb-6">
-            Aprende a diseñar estrategias comerciales de alto impacto.
-        </p>
+    <h3 class="text-2xl font-bold text-primary mt-2 mb-4">
+      Community Manager AI
+    </h3>
 
-        <a href="#" class="font-semibold text-primary">
-            Conocer programa →
-        </a>
+    <p class="text-gray-600 mb-6">
+      Aprende a gestionar comunidades digitales, crear contenidos
+      con inteligencia artificial y desarrollar estrategias
+      de comunicación para redes sociales.
+    </p>
 
-    </div>
+    <a href="pages/community-manager-ai/"
+       class="font-semibold text-primary">
+      Conocer el curso →
+    </a>
 
-</div>
-<div class="bg-white rounded-3xl shadow-lg overflow-hidden hover:-translate-y-2 transition">
-
-    <img src="assets/images/programs/ia.jpg"
-         class="w-full h-56 object-cover">
-
-    <div class="program-card-body p-8">
-
-        <span class="text-accent font-semibold">
-            Escuela de Tecnología
-        </span>
-
-        <h3 class="text-2xl font-bold text-primary mt-2 mb-4">
-            Inteligencia Artificial
-        </h3>
-
-        <p class="text-gray-600 mb-6">
-            Domina las herramientas de IA para transformar organizaciones.
-        </p>
-
-        <a href="#" class="font-semibold text-primary">
-            Conocer programa →
-        </a>
-
-    </div>
+  </div>
 
 </div>
-<div class="bg-white rounded-3xl shadow-lg overflow-hidden hover:-translate-y-2 transition">
 
-    <img src="assets/images/programs/liderazgo.jpg"
-         class="w-full h-56 object-cover">
+<div class="program-card bg-white rounded-3xl shadow-lg overflow-hidden hover:-translate-y-2 transition">
 
-    <div class="program-card-body p-8">
+  <img
+  src="assets/images/programs/marketing-evolution-program.webp"
+  alt="Marketing Evolution - Plan de Marketing"
+  class="w-full h-56 object-cover"
+>
 
-        <span class="text-accent font-semibold">
-            Escuela de Liderazgo
-        </span>
+  <div class="program-card-body p-8">
 
-        <h3 class="text-2xl font-bold text-primary mt-2 mb-4">
-            Liderazgo Ejecutivo
-        </h3>
+    <span class="text-accent font-semibold">
+      Escuela de Marketing
+    </span>
 
-        <p class="text-gray-600 mb-6">
-            Lidera equipos de alto desempeño en entornos globales.
-        </p>
+    <h3 class="text-2xl font-bold text-primary mt-2 mb-4">
+      Marketing Evolution
+    </h3>
 
-        <a href="#" class="font-semibold text-primary">
-            Conocer programa →
-        </a>
+    <p class="text-gray-600 mb-6">
+      Evoluciona tu visión del marketing integrando estrategia,
+      conocimiento del consumidor, herramientas de inteligencia
+      artificial y analítica para tomar mejores decisiones.
+    </p>
 
-    </div>
+    <a href="pages/marketing-evolution/"
+       class="font-semibold text-primary">
+      Conocer el programa →
+    </a>
+
+  </div>
 
 </div>
-<div class="bg-white rounded-3xl shadow-lg overflow-hidden hover:-translate-y-2 transition">
 
-    <img src="assets/images/programs/finance.jpg"
-         class="w-full h-56 object-cover">
+<div class="program-card bg-white rounded-3xl shadow-lg overflow-hidden hover:-translate-y-2 transition">
 
-    <div class="program-card-body p-8">
+  <img
+  src="assets/images/programs/ventas-ai-program.webp"
+  alt="Ventas AI - Inteligencia artificial aplicada a la gestión comercial"
+  class="w-full h-56 object-cover"
+>
 
-        <span class="text-accent font-semibold">
-            Escuela de Finanzas
-        </span>
+  <div class="program-card-body p-8">
 
-        <h3 class="text-2xl font-bold text-primary mt-2 mb-4">
-            Finanzas Corporativas
-        </h3>
+    <span class="text-accent font-semibold">
+      Escuela de Ventas
+    </span>
 
-        <p class="text-gray-600 mb-6">
-            Toma decisiones financieras con visión estratégica.
-        </p>
+    <h3 class="text-2xl font-bold text-primary mt-2 mb-4">
+      Ventas AI
+    </h3>
 
-        <a href="#" class="font-semibold text-primary">
-            Conocer programa →
-        </a>
+    <p class="text-gray-600 mb-6">
+      Aprende a integrar inteligencia artificial en la prospección
+      de clientes, la gestión comercial, el seguimiento de oportunidades
+      y las estrategias de cierre de ventas.
+    </p>
 
-    </div>
+    <span class="font-semibold text-gray-500">
+      Próximamente
+    </span>
+
+  </div>
+
+</div>
+
+<div class="program-card bg-white rounded-3xl shadow-lg overflow-hidden hover:-translate-y-2 transition">
+
+  <img
+  src="assets/images/programs/social-media-program.webp"
+  alt="Social Media & Community Manager AI - Creación de contenido digital"
+  class="w-full h-56 object-cover"
+>
+
+  <div class="program-card-body p-8">
+
+    <span class="text-accent font-semibold">
+      Escuela de Marketing
+    </span>
+
+    <h3 class="text-2xl font-bold text-primary mt-2 mb-4">
+      Social Media &amp; Community Manager AI
+    </h3>
+
+    <p class="text-gray-600 mb-6">
+      Desarrolla estrategias de redes sociales, crea contenidos
+      con inteligencia artificial, gestiona comunidades digitales
+      y optimiza campañas mediante analítica y automatización.
+    </p>
+
+    <a href="pages/social-media/"
+   class="font-semibold text-primary">
+  Conocer el programa →
+</a>
+
+  </div>
+
+</div>
+
+<!-- PROGRAMA 5: EMPRENDIMIENTO -->
+<div class="program-card bg-white rounded-3xl shadow-lg overflow-hidden hover:-translate-y-2 transition">
+
+  <img
+  src="assets/images/programs/emprendimiento-program.webp"
+  alt="Emprendimiento - Desarrollo de ideas y nuevos modelos de negocio"
+  class="w-full h-56 object-cover"
+>
+
+  <div class="program-card-body p-8">
+
+    <span class="text-accent font-semibold">
+      Escuela de Emprendimiento
+    </span>
+
+    <h3 class="text-2xl font-bold text-primary mt-2 mb-4">
+      Emprendimiento
+    </h3>
+
+    <p class="text-gray-600 mb-6">
+      Transforma tus ideas en oportunidades de negocio.
+      Aprende a desarrollar modelos de negocio, validar
+      propuestas de valor y construir emprendimientos sostenibles.
+    </p>
+
+    <span class="font-semibold text-gray-500">
+      Próximamente
+    </span>
+
+  </div>
+
+</div>
+
+<!-- PROGRAMA 6: INTELIGENCIA ARTIFICIAL -->
+<div class="program-card bg-white rounded-3xl shadow-lg overflow-hidden hover:-translate-y-2 transition">
+
+  <img
+  src="assets/images/programs/inteligencia-artificial-program.webp"
+  alt="Inteligencia Artificial - Aplicaciones de IA, automatización y análisis de datos en las organizaciones"
+  class="w-full h-56 object-cover"
+>
+
+  <div class="program-card-body p-8">
+
+    <span class="text-accent font-semibold">
+      Escuela de Tecnología e Innovación
+    </span>
+
+    <h3 class="text-2xl font-bold text-primary mt-2 mb-4">
+      Inteligencia Artificial
+    </h3>
+
+    <p class="text-gray-600 mb-6">
+      Descubre cómo aplicar herramientas de inteligencia artificial
+      para mejorar la productividad, automatizar tareas y transformar
+      los procesos de trabajo en las organizaciones.
+    </p>
+
+    <span class="font-semibold text-gray-500">
+      Próximamente
+    </span>
+
+  </div>
 
 </div>
         </div>
@@ -262,7 +473,7 @@
      ¿POR QUÉ EAN?
 ========================= -->
 
-<section class="section bg-gray-50">
+<section id="sobre-ean" class="section bg-gray-50">
 
     <div class="container-ean">
 
@@ -276,7 +487,7 @@
             <h2 class="title why-title">
                 Mucho más que un curso.
                 <br>
-                Una experiencia diseñada para transformar tu carrera.
+                Una experiencia diseñada para transformar tu carrera
             </h2>
 
             <p class="subtitle why-subtitle">
@@ -292,12 +503,11 @@
 
             <!-- Imagen -->
             <div class="why-image">
-
-                <img
-                    src="assets/images/about/about-ean.jpg"
-                    alt="EAN Business School">
-
-            </div>
+    <img
+        src="assets/images/about/ean-programas-ejecutivos.webp"
+        alt="EAN Business School - Conocemos el camino para tu desarrollo"
+        loading="lazy">
+</div>
 
             <!-- Columna derecha -->
             <div>
@@ -363,11 +573,12 @@
                         <h3>Método EAN®</h3>
 
                         <p>
-                            Nuestra metodología combina experiencia empresarial,
-                            aprendizaje práctico, inteligencia artificial y
-                            acompañamiento docente para generar resultados desde
-                            la primera semana.
-                        </p>
+    Nuestra metodología integra casos reales, ejercicios
+    prácticos, herramientas profesionales e inteligencia
+    artificial y proyectos aplicados. Aprenderás desarrollando
+    soluciones que podrás aplicar directamente en tu
+    entorno profesional.
+</p>
 
                     </div>
 
@@ -375,7 +586,7 @@
 
                 <div class="why-button">
 
-                    <a href="#" class="btn-primary">
+                    <a href="#programas" class="btn-primary">
                         Explorar Programas
                     </a>
 
@@ -392,7 +603,7 @@
 FACULTY INTERNACIONAL
 ========================================== -->
 
-<section class="section">
+<section class="section" style="display: none;">
 
     <div class="container-ean">
 
@@ -561,29 +772,27 @@ FACULTY INTERNACIONAL
 EMPRESAS QUE CONFÍAN EN EAN
 ========================================== -->
 
-<section class="section bg-gray-50">
+<section id="empresas" class="section bg-gray-50">
 
     <div class="container-ean">
 
-        <div class="text-center mb-16">
+        <div class="text-center mb-8">
 
             <p class="uppercase tracking-[4px] text-accent font-semibold mb-4">
 
-                EMPRESAS ALIADAS
+                COMUNIDAD EMPRESARIAL EAN
 
             </p>
 
             <h2 class="title mb-6">
 
-                Empresas que impulsan el talento con EAN
+                El talento que conecta con las empresas
 
             </h2>
 
             <p class="subtitle max-w-3xl mx-auto">
 
-                Ejecutivos y organizaciones líderes confían en nuestros programas
-                para fortalecer competencias en liderazgo, innovación,
-                inteligencia artificial y transformación empresarial.
+                Profesionales de reconocidas organizaciones han participado en nuestras experiencias de formación ejecutiva, fortaleciendo sus competencias y contribuyendo al desarrollo de sus empresas.
 
             </p>
 
@@ -591,31 +800,63 @@ EMPRESAS QUE CONFÍAN EN EAN
 
 <div class="company-slider">
 
-    <!-- Primera vuelta -->
+   <!-- Primera vuelta -->
+<img src="assets/images/companies/nutri.webp" alt="Nutri">
+<img src="assets/images/companies/instituto-quito-metropolitano.webp" alt="Instituto Quito Metropolitano">
+<img src="assets/images/companies/uide.webp" alt="UIDE">
+<img src="assets/images/companies/ups.webp" alt="Universidad Politécnica Salesiana">
+<img src="assets/images/companies/chevyPlan.webp" alt="ChevyPlan">
+<img src="assets/images/companies/yanbal.webp" alt="Yanbal">
+<img src="assets/images/companies/incarmed.webp" alt="Incarmed Ecuador">
+<img src="assets/images/companies/sunsetvalley.webp" alt="SunsetValley">
+<img src="assets/images/companies/bling-logistics.webp" alt="Bling Logistics Network">
+<img src="assets/images/companies/nexsys.webp" alt="Nexsys del Ecuador">
+<img src="assets/images/companies/distribuidora-panamericana.webp" alt="Distribuidora Panamericana">
+<img src="assets/images/companies/river-mall.webp" alt="River Mall">
+<img src="assets/images/companies/novacero.webp" alt="Novacero">
+<img src="assets/images/companies/banco-solidario.webp" alt="Banco Solidario">
+<img src="assets/images/companies/rivas-publicidad.webp" alt="Rivas Publicidad">
+<img src="assets/images/companies/presidencia-ecuador.webp" alt="Presidencia del Ecuador">
+<img src="assets/images/companies/mutualista-pichincha.webp" alt="Mutualista Pichincha">
+<img src="assets/images/companies/textiles-tornasol.webp" alt="Textiles Tornasol">
+<img src="assets/images/companies/banco-pichincha.webp" alt="Banco Pichincha">
+<img src="assets/images/companies/farmaenlace.webp" alt="Farmaenlace">
+<img src="assets/images/companies/conauto.webp" alt="Conauto">
+<img src="assets/images/companies/cm-construcciones.webp" alt="CM Construcciones">
+<img src="assets/images/companies/cooperativa-virgen-del-cisne.webp" alt="Cooperativa Virgen del Cisne">
+<img src="assets/images/companies/nova-ecuador.webp" alt="NOVA Ecuador">
+<img src="assets/images/companies/sedemi.webp" alt="SEDEMI">
+<img src="assets/images/companies/bgr.webp" alt="Banco General Rumiñahui">
+<img src="assets/images/companies/banco-de-loja.webp" alt="Banco de Loja">
 
-    <img src="assets/images/companies/microsoft.png" alt="Microsoft">
-    <img src="assets/images/companies/amazon.png" alt="Amazon">
-    <img src="assets/images/companies/meta.png" alt="Meta">
-    <img src="assets/images/companies/oracle.png" alt="Oracle">
-    <img src="assets/images/companies/ibm.png" alt="IBM">
-    <img src="assets/images/companies/sap.png" alt="SAP">
-    <img src="assets/images/companies/deloitte.png" alt="Deloitte">
-    <img src="assets/images/companies/google.png" alt="Google">
-    <img src="assets/images/companies/pwc.png" alt="PwC">
-    <img src="assets/images/companies/cocacola.png" alt="Coca-Cola">
-
-    <!-- Segunda vuelta (duplicados) -->
-
-    <img src="assets/images/companies/microsoft.png" alt="Microsoft">
-    <img src="assets/images/companies/amazon.png" alt="Amazon">
-    <img src="assets/images/companies/meta.png" alt="Meta">
-    <img src="assets/images/companies/oracle.png" alt="Oracle">
-    <img src="assets/images/companies/ibm.png" alt="IBM">
-    <img src="assets/images/companies/sap.png" alt="SAP">
-    <img src="assets/images/companies/deloitte.png" alt="Deloitte">
-    <img src="assets/images/companies/google.png" alt="Google">
-    <img src="assets/images/companies/pwc.png" alt="PwC">
-    <img src="assets/images/companies/cocacola.png" alt="Coca-Cola">
+<!-- Segunda vuelta: duplicados para desplazamiento continuo -->
+<img src="assets/images/companies/nutri.webp" alt="Nutri">
+<img src="assets/images/companies/instituto-quito-metropolitano.webp" alt="Instituto Quito Metropolitano">
+<img src="assets/images/companies/uide.webp" alt="UIDE">
+<img src="assets/images/companies/ups.webp" alt="Universidad Politécnica Salesiana">
+<img src="assets/images/companies/chevyPlan.webp" alt="ChevyPlan">
+<img src="assets/images/companies/yanbal.webp" alt="Yanbal">
+<img src="assets/images/companies/incarmed.webp" alt="Incarmed Ecuador">
+<img src="assets/images/companies/sunsetvalley.webp" alt="SunsetValley">
+<img src="assets/images/companies/bling-logistics.webp" alt="Bling Logistics Network">
+<img src="assets/images/companies/nexsys.webp" alt="Nexsys del Ecuador">
+<img src="assets/images/companies/distribuidora-panamericana.webp" alt="Distribuidora Panamericana">
+<img src="assets/images/companies/river-mall.webp" alt="River Mall">
+<img src="assets/images/companies/novacero.webp" alt="Novacero">
+<img src="assets/images/companies/banco-solidario.webp" alt="Banco Solidario">
+<img src="assets/images/companies/rivas-publicidad.webp" alt="Rivas Publicidad">
+<img src="assets/images/companies/presidencia-ecuador.webp" alt="Presidencia del Ecuador">
+<img src="assets/images/companies/mutualista-pichincha.webp" alt="Mutualista Pichincha">
+<img src="assets/images/companies/textiles-tornasol.webp" alt="Textiles Tornasol">
+<img src="assets/images/companies/banco-pichincha.webp" alt="Banco Pichincha">
+<img src="assets/images/companies/farmaenlace.webp" alt="Farmaenlace">
+<img src="assets/images/companies/conauto.webp" alt="Conauto">
+<img src="assets/images/companies/cm-construcciones.webp" alt="CM Construcciones">
+<img src="assets/images/companies/cooperativa-virgen-del-cisne.webp" alt="Cooperativa Virgen del Cisne">
+<img src="assets/images/companies/nova-ecuador.webp" alt="NOVA Ecuador">
+<img src="assets/images/companies/sedemi.webp" alt="SEDEMI">
+<img src="assets/images/companies/bgr.webp" alt="Banco General Rumiñahui">
+<img src="assets/images/companies/banco-de-loja.webp" alt="Banco de Loja">
 
 </div>
 
@@ -644,34 +885,34 @@ EMPRESAS QUE CONFÍAN EN EAN
         </div>
 
 
-        <div class="grid md:grid-cols-3 gap-10">
+       <div id="testimonios-carrusel"
+     class="flex gap-8 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-6">
 
             <!-- TESTIMONIO 1 -->
 
-            <div class="testimonial-card">
+            <div class="testimonial-card shrink-0 w-full md:w-[calc((100%-2rem)/2)] lg:w-[calc((100%-4rem)/3)] snap-start">
 
                 <img
-                    src="assets/images/testimonials/student-1.jpg"
-                    class="testimonial-photo"
-                    alt="Student"
-                >
+  src="assets/images/testimonials/brenda-suarez.webp"
+  class="testimonial-photo"
+  alt="Brenda Suarez"
+>
 
                 <div class="stars">
                     ★★★★★
                 </div>
 
                 <p class="testimonial-text">
-                    "El programa de Inteligencia Artificial transformó completamente
-                    mi forma de dirigir proyectos y tomar decisiones estratégicas."
+                    “El programa de Marketing me ayudó a organizar mejor nuestras estrategias y comprender al consumidor. Lo más valioso fue trabajar con casos reales y aplicar lo aprendido directamente en mi empresa.”
                 </p>
 
                 <h4 class="testimonial-name">
-                    Juan Pérez
-                </h4>
+  Brenda Suarez
+</h4>
 
-                <span class="testimonial-position">
-                    CEO · Ecuador
-                </span>
+<span class="testimonial-position">
+  Gerente de Marketing · Ecuador
+</span>
 
             </div>
 
@@ -679,29 +920,28 @@ EMPRESAS QUE CONFÍAN EN EAN
 
             <!-- TESTIMONIO 2 -->
 
-            <div class="testimonial-card">
+            <div class="testimonial-card shrink-0 w-full md:w-[calc((100%-2rem)/2)] lg:w-[calc((100%-4rem)/3)] snap-start">
 
                 <img
-                    src="assets/images/testimonials/student-2.jpg"
-                    class="testimonial-photo"
-                    alt="Student"
-                >
+  src="assets/images/testimonials/ernesto-chauvin.webp"
+  class="testimonial-photo"
+  alt="Ernesto Chauvin"
+>
 
                 <div class="stars">
                     ★★★★★
                 </div>
 
                 <p class="testimonial-text">
-                    "Los profesores internacionales aportaron una visión global
-                    que pude aplicar inmediatamente en mi empresa."
+                    “Encontré herramientas prácticas para mejorar la gestión comercial y el seguimiento de clientes. Fue una capacitación muy útil porque pude incorporar varias ideas a mi trabajo desde las primeras sesiones.”
                 </p>
 
                 <h4 class="testimonial-name">
-                    María López
+                    Ernesto Chauvin
                 </h4>
 
                 <span class="testimonial-position">
-                    Directora Comercial · Colombia
+                    Gerente Comercial · Ecuador
                 </span>
 
             </div>
@@ -710,21 +950,48 @@ EMPRESAS QUE CONFÍAN EN EAN
 
             <!-- TESTIMONIO 3 -->
 
-            <div class="testimonial-card">
+            <div class="testimonial-card shrink-0 w-full md:w-[calc((100%-2rem)/2)] lg:w-[calc((100%-4rem)/3)] snap-start">
 
                 <img
-                    src="assets/images/testimonials/student-3.jpg"
-                    class="testimonial-photo"
-                    alt="Student"
-                >
+  src="assets/images/testimonials/marcia-lopez.webp"
+  class="testimonial-photo"
+  alt="Marcia López"
+>
 
                 <div class="stars">
                     ★★★★★
                 </div>
 
                 <p class="testimonial-text">
-                    "La metodología práctica y el networking internacional
-                    superaron todas mis expectativas."
+                    “El programa me permitió actualizar mis conocimientos sobre gestión del talento humano y conocer nuevas formas de trabajar con los equipos. Me gustó especialmente el intercambio de experiencias con otros profesionales.”
+                </p>
+
+                <h4 class="testimonial-name">
+                    Marcia López
+                </h4>
+
+                <span class="testimonial-position">
+                    Directora de Talento Humano · Colombia
+                </span>
+
+            </div>
+
+      <!-- TESTIMONIO 4 -->
+
+            <div class="testimonial-card shrink-0 w-full md:w-[calc((100%-2rem)/2)] lg:w-[calc((100%-4rem)/3)] snap-start">
+
+                <img
+  src="assets/images/testimonials/carlos-rodriguez.webp"
+  class="testimonial-photo"
+  alt="Carlos Rodríguez"
+>
+
+                <div class="stars">
+                    ★★★★★
+                </div>
+
+                <p class="testimonial-text">
+                    “Llegué con una idea de negocio y terminé con una visión mucho más clara de cómo desarrollarla. Los ejercicios prácticos me ayudaron a ordenar mis prioridades y tomar mejores decisiones.”
                 </p>
 
                 <h4 class="testimonial-name">
@@ -732,13 +999,66 @@ EMPRESAS QUE CONFÍAN EN EAN
                 </h4>
 
                 <span class="testimonial-position">
-                    Gerente General · Perú
+                    Emprendedor · Perú
+                </span>
+
+            </div>
+
+
+
+            <!-- TESTIMONIO 5 -->
+
+            <div class="testimonial-card shrink-0 w-full md:w-[calc((100%-2rem)/2)] lg:w-[calc((100%-4rem)/3)] snap-start">
+
+                <img
+  src="assets/images/testimonials/sophie-martinez.webp"
+  class="testimonial-photo"
+  alt="Sophie Martínez"
+>
+
+                <div class="stars">
+                    ★★★★★
+                </div>
+
+                <p class="testimonial-text">
+                    “Buscaba actualizar mis conocimientos en redes sociales y gestión de comunidades. El programa me dio herramientas que puedo utilizar en proyectos reales, con la ventaja de estudiar en vivo desde Estados Unidos.”
+                </p>
+
+                <h4 class="testimonial-name">
+                    Sophie Martínez
+                </h4>
+
+                <span class="testimonial-position">
+                    Especialista en Marketing Digital · Florida, EE. UU.
                 </span>
 
             </div>
 
         </div>
+<!-- Controles del carrusel de testimonios -->
+<div class="flex items-center justify-center gap-6 mt-8">
 
+  <button
+    type="button"
+    id="testimonios-prev"
+    aria-label="Testimonio anterior"
+    class="w-12 h-12 rounded-full bg-white shadow-md text-blue-900 text-2xl hover:bg-gray-100">
+    &#10094;
+  </button>
+
+  <div id="testimonios-indicadores"
+       class="flex items-center gap-2">
+  </div>
+
+  <button
+    type="button"
+    id="testimonios-next"
+    aria-label="Siguiente testimonio"
+    class="w-12 h-12 rounded-full bg-white shadow-md text-blue-900 text-2xl hover:bg-gray-100">
+    &#10095;
+  </button>
+
+</div>
     </div>
 
 </section>
@@ -771,14 +1091,16 @@ CALL TO ACTION
 
         <div class="flex flex-wrap justify-center gap-6">
 
-            <a href="#"
+            <a href="#programas"
                class="bg-accent text-white px-10 py-5 rounded-full font-semibold hover:scale-105 transition">
 
                 Explorar Programas
 
             </a>
 
-            <a href="#"
+            <a href="https://wa.me/593999224766"
+   target="_blank"
+   rel="noopener noreferrer"
                class="border-2 border-white text-white px-10 py-5 rounded-full font-semibold hover:bg-white hover:text-primary transition">
 
                 Hablar con un Asesor
@@ -808,85 +1130,28 @@ PRESENCIA INTERNACIONAL
 
 <h2 class="title mb-6">
 
-Una comunidad que trasciende fronteras
+El conocimiento nos conecta, sin fronteras
 
 </h2>
 
 <p class="subtitle max-w-3xl mx-auto">
 
-Más de 1.500 profesionales han fortalecido sus competencias
-desde distintos países de América Latina y Estados Unidos.
+Más de 1.500 profesionales de 14 países han sido parte de nuestras experiencias de formación ejecutiva, compartiendo conocimientos, perspectivas y herramientas para crecer profesionalmente.
 
 </p>
 
 </div>
 
 
-<div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+<!-- MAPA DE PRESENCIA INTERNACIONAL -->
+<div class="w-full max-w-6xl mx-auto">
 
-<div class="country-card">
-
-🌎
-
-<h4>Ecuador</h4>
-
-</div>
-
-<div class="country-card">
-
-🇨🇴
-
-<h4>Colombia</h4>
-
-</div>
-
-<div class="country-card">
-
-🇵🇪
-
-<h4>Perú</h4>
-
-</div>
-
-<div class="country-card">
-
-🇺🇸
-
-<h4>Estados Unidos</h4>
-
-</div>
-
-<div class="country-card">
-
-🇲🇽
-
-<h4>México</h4>
-
-</div>
-
-<div class="country-card">
-
-🇪🇸
-
-<h4>España</h4>
-
-</div>
-
-<div class="country-card">
-
-🇨🇱
-
-<h4>Chile</h4>
-
-</div>
-
-<div class="country-card">
-
-🇵🇦
-
-<h4>Panamá</h4>
-
-</div>
+    <img
+        src="assets/images/about/ean-presencia-internacional.webp"
+        alt="Presencia internacional de EAN Business School"
+        class="w-full h-auto rounded-2xl"
+        loading="lazy"
+    >
 
 </div>
 
@@ -917,14 +1182,16 @@ desde distintos países de América Latina y Estados Unidos.
 
                 <h4 class="font-bold mb-4">Programas</h4>
 
-                <ul class="space-y-3 text-gray-300">
+                
+<ul class="space-y-3 text-gray-300">
+    <li><a href="pages/community-manager-ai/">Community Manager AI</a></li>
+    <li><a href="pages/social-media/">Social Media AI</a></li>
+    <li><a href="pages/marketing-evolution/">Marketing Evolution</a></li>
+    <li>Inteligencia Artificial</li>
+<li>Ventas AI</li>
+<li>Emprendimiento</li>
+</ul>
 
-                    <li><a href="#">Marketing</a></li>
-                    <li><a href="#">Inteligencia Artificial</a></li>
-                    <li><a href="#">Liderazgo</a></li>
-                    <li><a href="#">Finanzas</a></li>
-
-                </ul>
 
             </div>
 
@@ -934,10 +1201,10 @@ desde distintos países de América Latina y Estados Unidos.
 
                 <ul class="space-y-3 text-gray-300">
 
-                    <li><a href="#">Sobre Nosotros</a></li>
-                    <li><a href="#">Faculty</a></li>
-                    <li><a href="#">Empresas</a></li>
-                    <li><a href="#">Contacto</a></li>
+                    <li><a href="#sobre-ean">Sobre Nosotros</a></li>
+                    <li class="hidden"><a href="#">Faculty</a></li>
+                    <li><a href="#empresas">Empresas</a></li>
+                    <li><a href="https://wa.me/593999224766" target="_blank" rel="noopener noreferrer">Contacto</a></li>
 
                 </ul>
 
@@ -947,7 +1214,7 @@ desde distintos países de América Latina y Estados Unidos.
 
                 <h4 class="font-bold mb-4">
 
-                    Admissions
+                    Admisiones
 
                 </h4>
 
@@ -957,7 +1224,9 @@ desde distintos países de América Latina y Estados Unidos.
 
                 </p>
 
-                <a href="#"
+                <a href="https://wa.me/593999224766"
+   target="_blank"
+   rel="noopener noreferrer"
                    class="inline-block mt-6 bg-accent text-white px-6 py-3 rounded-full font-semibold">
 
                     Hablar con un Asesor
